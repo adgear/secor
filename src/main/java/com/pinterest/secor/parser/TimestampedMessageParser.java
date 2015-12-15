@@ -46,6 +46,14 @@ public abstract class TimestampedMessageParser extends MessageParser implements 
 
     private final boolean mUsingHourly;
 
+    public SimpleDateFormat getmDtFormatter() {
+        return mDtFormatter;
+    }
+
+    public SimpleDateFormat getmHrFormatter() {
+        return mHrFormatter;
+    }
+
     public TimestampedMessageParser(SecorConfig config) {
         super(config);
         mUsingHourly = usingHourly(config);
