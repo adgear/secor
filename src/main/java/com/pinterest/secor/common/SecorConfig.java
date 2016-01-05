@@ -340,6 +340,10 @@ public class SecorConfig {
         return getInt("partitioner.finalizer.delay.seconds");
     }
 
+    public String getAdgearSource() {
+        return getString("secor.adgear.source");
+    }
+
     public boolean getBoolean(String name, boolean defaultValue) {
         return mProperties.getBoolean(name, defaultValue);
     }

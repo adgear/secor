@@ -23,9 +23,13 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.pinterest.secor.common.SecorConfig;
+import com.pinterest.secor.io.AdgearReader;
 import com.pinterest.secor.io.FileReader;
 import com.pinterest.secor.io.FileReaderWriterFactory;
 import com.pinterest.secor.io.FileWriter;
+
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.compress.CompressionCodec;
@@ -43,7 +47,7 @@ import com.pinterest.secor.util.FileUtil;
  *
  * @author Praveen Murugesan (praveen@uber.com)
  */
-public class DelimitedTextFileReaderWriterFactory implements FileReaderWriterFactory {
+public class TsvFileReaderWriterFactory implements FileReaderWriterFactory {
     private static final byte DELIMITER = '\n';
 
     @Override
@@ -67,9 +71,9 @@ public class DelimitedTextFileReaderWriterFactory implements FileReaderWriterFac
             FileSystem fs = FileUtil.getFileSystem(path.getLogFilePath());
             InputStream inputStream = fs.open(fsPath);
             this.mReader = (codec == null) ? new BufferedInputStream(inputStream)
-                    : new BufferedInputStream(
-                    codec.createInputStream(inputStream,
-                                            mDecompressor = CodecPool.getDecompressor(codec)));
+                                           : new BufferedInputStream(
+                                                   codec.createInputStream(inputStream,
+                                                                           mDecompressor = CodecPool.getDecompressor(codec)));
             this.mOffset = path.getOffset();
         }
 
@@ -103,8 +107,22 @@ public class DelimitedTextFileReaderWriterFactory implements FileReaderWriterFac
         private final CountingOutputStream mCountingStream;
         private final BufferedOutputStream mWriter;
         private Compressor mCompressor = null;
+        private final AdgearReader aReader;
 
         public DelimitedTextFileWriter(LogFilePath path, CompressionCodec codec) throws IOException {
+            PropertiesConfiguration properties = new PropertiesConfiguration();
+            SecorConfig mConfig = new SecorConfig(properties);
+            String source = mConfig.getAdgearSource();
+
+            if ("delivery".equals(source)) {
+                aReader = new AdgearDeliveryJsonReader(mConfig);
+            } else if ("gateway".equals(source)) {
+                throw new RuntimeException("gateway: not implemented");
+            } else {
+                throw new RuntimeException(String.format("Bad value for secor.adgear.source: `%s'.",
+                                                         source != null ? source : "(null)"));
+            }
+
             Path fsPath = new Path(path.getLogFilePath());
             FileSystem fs = FileUtil.getFileSystem(path.getLogFilePath());
             this.mCountingStream = new CountingOutputStream(fs.create(fsPath));
@@ -122,8 +140,11 @@ public class DelimitedTextFileReaderWriterFactory implements FileReaderWriterFac
 
         @Override
         public void write(KeyValue keyValue) throws IOException {
-            this.mWriter.write(keyValue.getValue());
-            this.mWriter.write(DELIMITER);
+            byte[] bytes = this.aReader.convert(keyValue).getBytes();
+            if (bytes != null) {
+                this.mWriter.write(bytes);
+                this.mWriter.write("\n".getBytes());
+            }
         }
 
         @Override
