@@ -29,7 +29,7 @@ import com.pinterest.secor.io.FileReader;
 import com.pinterest.secor.io.FileReaderWriterFactory;
 import com.pinterest.secor.io.FileWriter;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.compress.CompressionCodec;
@@ -110,10 +110,15 @@ public class TsvFileReaderWriterFactory implements FileReaderWriterFactory {
         private final AdgearReader aReader;
 
         public DelimitedTextFileWriter(LogFilePath path, CompressionCodec codec) throws IOException {
-            PropertiesConfiguration properties = new PropertiesConfiguration();
-            SecorConfig mConfig = new SecorConfig(properties);
-            String source = mConfig.getAdgearSource();
+            SecorConfig mConfig = null;
+            try {
+                mConfig = SecorConfig.load();
+            } catch (ConfigurationException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Call to SecorConfig.load failed.");
+            }
 
+            String source = mConfig.getAdgearSource();
             if ("delivery".equals(source)) {
                 aReader = new AdgearDeliveryJsonReader(mConfig);
             } else if ("gateway".equals(source)) {
@@ -140,10 +145,10 @@ public class TsvFileReaderWriterFactory implements FileReaderWriterFactory {
 
         @Override
         public void write(KeyValue keyValue) throws IOException {
-            byte[] bytes = this.aReader.convert(keyValue).getBytes();
-            if (bytes != null) {
-                this.mWriter.write(bytes);
-                this.mWriter.write("\n".getBytes());
+            String value = this.aReader.convert(keyValue);
+            if (value != null) {
+                this.mWriter.write(value.getBytes());
+                this.mWriter.write(DELIMITER);
             }
         }
 
