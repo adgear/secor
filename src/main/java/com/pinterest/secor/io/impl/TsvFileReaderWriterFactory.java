@@ -148,7 +148,6 @@ public class TsvFileReaderWriterFactory implements FileReaderWriterFactory {
             String value = this.aReader.convert(keyValue);
             if (value != null) {
                 this.mWriter.write(value.getBytes());
-                this.mWriter.write(DELIMITER);
             }
         }
 
