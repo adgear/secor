@@ -122,7 +122,7 @@ public class TsvFileReaderWriterFactory implements FileReaderWriterFactory {
             if ("delivery".equals(source)) {
                 aReader = new AdgearDeliveryJsonReader(mConfig);
             } else if ("gateway".equals(source)) {
-                throw new RuntimeException("gateway: not implemented");
+                aReader = new AdgearGatewayJsonReader(mConfig);
             } else {
                 throw new RuntimeException(String.format("Bad value for secor.adgear.source: `%s'.",
                                                          source != null ? source : "(null)"));
