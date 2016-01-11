@@ -154,11 +154,21 @@ public class LogFilePath {
     }
 
     private String getLogFileBasename() {
-        ArrayList<String> basenameElements = new ArrayList<String>();
-        basenameElements.add(Integer.toString(mGeneration));
-        basenameElements.add(Integer.toString(mKafkaPartition));
-        basenameElements.add(String.format("%020d", mOffset));
-        return StringUtils.join(basenameElements, "_");
+        if (this.mTimestamp == null) {
+            ArrayList<String> basenameElements = new ArrayList<String>();
+            basenameElements.add(Integer.toString(mGeneration));
+            basenameElements.add(Integer.toString(mKafkaPartition));
+            basenameElements.add(String.format("%020d", mOffset));
+
+            return StringUtils.join(basenameElements, "_");
+        } else {
+            Date fileDate = new Date(this.mTimestamp);
+            // Paths containing colons are rejected by the Hadoop/S3 code
+            // SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-DD'T'HH:mm:ss.SSS");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-DD'T'HH-mm-ss.SSS");
+
+            return formatter.format(fileDate) + "+" + this.mUuid.toString();
+        }
     }
 
     public String getLogFilePath() {
