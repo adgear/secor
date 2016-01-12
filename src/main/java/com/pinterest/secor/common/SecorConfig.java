@@ -340,6 +340,10 @@ public class SecorConfig {
         return getInt("partitioner.finalizer.delay.seconds");
     }
 
+    public String getSuccessfulUploadTouchFile() {
+        return getString("successful-upload-touch.file");
+    }
+
     public boolean getBoolean(String name, boolean defaultValue) {
         return mProperties.getBoolean(name, defaultValue);
     }
