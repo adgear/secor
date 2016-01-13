@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -105,7 +107,10 @@ public class Uploader {
                 mFileRegistry.deleteTopicPartition(topicPartition);
                 mZookeeperConnector.setCommittedOffsetCount(topicPartition, lastSeenOffset + 1);
                 mOffsetTracker.setCommittedOffsetCount(topicPartition, lastSeenOffset + 1);
-                touchSuccessfulUploadFile();
+                if (!touchSuccessfulUploadFile()) {
+                    LOG.warn("Failed to touch successful-upload-touch.file ({})",
+                             mSuccessfulUploadTouchFile.getAbsolutePath());
+                }
             }
         } finally {
             mZookeeperConnector.unlock(lockPath);
@@ -217,10 +222,18 @@ public class Uploader {
         }
     }
 
-    private void touchSuccessfulUploadFile() {
-        if (mSuccessfulUploadTouchFile == null) return;
+    private boolean touchSuccessfulUploadFile() {
+        if (mSuccessfulUploadTouchFile == null) return true;
 
-        /* Will this create the file as needed? */
-        mSuccessfulUploadTouchFile.setLastModified(System.currentTimeMillis());
+        if (!mSuccessfulUploadTouchFile.exists()) {
+            try {
+                new FileOutputStream(mSuccessfulUploadTouchFile).close();
+            } catch (IOException e) {
+                LOG.warn("Failed to touch successful-upload-touch.file", e);
+                return false;
+            }
+        }
+
+        return mSuccessfulUploadTouchFile.setLastModified(System.currentTimeMillis());
     }
 }
