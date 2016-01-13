@@ -30,6 +30,7 @@ import org.apache.hadoop.io.compress.CompressionCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -46,6 +47,7 @@ public class Uploader {
     private FileRegistry mFileRegistry;
     private ZookeeperConnector mZookeeperConnector;
     private UploadManager mUploadManager;
+    private final File mSuccessfulUploadTouchFile;
 
     public Uploader(SecorConfig config, OffsetTracker offsetTracker, FileRegistry fileRegistry,
                     UploadManager uploadManager) {
@@ -62,6 +64,12 @@ public class Uploader {
         mFileRegistry = fileRegistry;
         mUploadManager = uploadManager;
         mZookeeperConnector = zookeeperConnector;
+
+        if (mConfig.getSuccessfulUploadTouchFile() != null) {
+            mSuccessfulUploadTouchFile = new File(mConfig.getSuccessfulUploadTouchFile());
+        } else {
+            mSuccessfulUploadTouchFile = null;
+        }
     }
 
     private void uploadFiles(TopicPartition topicPartition) throws Exception {
@@ -97,6 +105,7 @@ public class Uploader {
                 mFileRegistry.deleteTopicPartition(topicPartition);
                 mZookeeperConnector.setCommittedOffsetCount(topicPartition, lastSeenOffset + 1);
                 mOffsetTracker.setCommittedOffsetCount(topicPartition, lastSeenOffset + 1);
+                touchSuccessfulUploadFile();
             }
         } finally {
             mZookeeperConnector.unlock(lockPath);
@@ -206,5 +215,12 @@ public class Uploader {
         for (TopicPartition topicPartition : topicPartitions) {
             checkTopicPartition(topicPartition);
         }
+    }
+
+    private void touchSuccessfulUploadFile() {
+        if (mSuccessfulUploadTouchFile == null) return;
+
+        /* Will this create the file as needed? */
+        mSuccessfulUploadTouchFile.setLastModified(System.currentTimeMillis());
     }
 }
