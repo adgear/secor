@@ -30,6 +30,9 @@ import org.apache.hadoop.io.compress.CompressionCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -46,6 +49,7 @@ public class Uploader {
     private FileRegistry mFileRegistry;
     private ZookeeperConnector mZookeeperConnector;
     private UploadManager mUploadManager;
+    private final File mSuccessfulUploadTouchFile;
 
     public Uploader(SecorConfig config, OffsetTracker offsetTracker, FileRegistry fileRegistry,
                     UploadManager uploadManager) {
@@ -62,6 +66,12 @@ public class Uploader {
         mFileRegistry = fileRegistry;
         mUploadManager = uploadManager;
         mZookeeperConnector = zookeeperConnector;
+
+        if (mConfig.getSuccessfulUploadTouchFile() != null) {
+            mSuccessfulUploadTouchFile = new File(mConfig.getSuccessfulUploadTouchFile());
+        } else {
+            mSuccessfulUploadTouchFile = null;
+        }
     }
 
     private void uploadFiles(TopicPartition topicPartition) throws Exception {
@@ -97,6 +107,10 @@ public class Uploader {
                 mFileRegistry.deleteTopicPartition(topicPartition);
                 mZookeeperConnector.setCommittedOffsetCount(topicPartition, lastSeenOffset + 1);
                 mOffsetTracker.setCommittedOffsetCount(topicPartition, lastSeenOffset + 1);
+                if (!touchSuccessfulUploadFile()) {
+                    LOG.warn("Failed to touch successful-upload-touch.file ({})",
+                             mSuccessfulUploadTouchFile.getAbsolutePath());
+                }
             }
         } finally {
             mZookeeperConnector.unlock(lockPath);
@@ -206,5 +220,20 @@ public class Uploader {
         for (TopicPartition topicPartition : topicPartitions) {
             checkTopicPartition(topicPartition);
         }
+    }
+
+    private boolean touchSuccessfulUploadFile() {
+        if (mSuccessfulUploadTouchFile == null) return true;
+
+        if (!mSuccessfulUploadTouchFile.exists()) {
+            try {
+                new FileOutputStream(mSuccessfulUploadTouchFile).close();
+            } catch (IOException e) {
+                LOG.warn("Failed to touch successful-upload-touch.file", e);
+                return false;
+            }
+        }
+
+        return mSuccessfulUploadTouchFile.setLastModified(System.currentTimeMillis());
     }
 }
