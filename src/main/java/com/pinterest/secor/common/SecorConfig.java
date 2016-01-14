@@ -341,7 +341,8 @@ public class SecorConfig {
     }
 
     public String getSuccessfulUploadTouchFile() {
-        return getString("successful-upload-touch.file");
+        // Bypass this.getString's checkProperty to allow this property to be unset
+        return mProperties.getString("successful-upload-touch.file");
     }
 
     public boolean getBoolean(String name, boolean defaultValue) {
