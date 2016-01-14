@@ -19,8 +19,11 @@ package com.pinterest.secor.common;
 import com.pinterest.secor.message.ParsedMessage;
 import org.apache.commons.lang.StringUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * LogFilePath represents path of a log file.  It contains convenience method for building and
@@ -44,16 +47,20 @@ import java.util.Arrays;
 public class LogFilePath {
     private final String mPrefix;
     private final String mTopic;
+    private final String mShortTopic;
     private final String[] mPartitions;
     private final int mGeneration;
     private final int mKafkaPartition;
     private final long mOffset;
     private final String mExtension;
+    private Long mTimestamp = new Date().getTime();
+    private final UUID mUuid = UUID.randomUUID();
 
     public LogFilePath(String prefix, int generation, long lastCommittedOffset,
                        ParsedMessage message, String extension) {
         mPrefix = prefix;
         mTopic = message.getTopic();
+        mShortTopic = shortTopic(mTopic);
         mPartitions = message.getPartitions();
         mGeneration = generation;
         mKafkaPartition = message.getKafkaPartition();
@@ -65,11 +72,22 @@ public class LogFilePath {
                        int kafkaPartition, long offset, String extension) {
         mPrefix = prefix;
         mTopic = topic;
+        mShortTopic = shortTopic(mTopic);
         mPartitions = partitions;
         mGeneration = generation;
         mKafkaPartition = kafkaPartition;
         mOffset = offset;
         mExtension = extension;
+    }
+
+    private static String shortTopic(String topic) {
+        if (topic.contains(".delivery.")) {
+            return "agd";
+        } else if (topic.contains(".gateway.") || topic.contains(".exchange.")) {
+            return "agx";
+        } else {
+            return topic;
+        }
     }
 
     private static String[] subArray(String[] array, int startIndex, int endIndex) {
@@ -95,6 +113,7 @@ public class LogFilePath {
         assert pathElements.length >= 3: Arrays.toString(pathElements) + ".length >= 3";
 
         mTopic = pathElements[0];
+        mShortTopic = shortTopic(mTopic);
         mPartitions = subArray(pathElements, 1, pathElements.length - 2);
 
         // Parse basename.
@@ -121,7 +140,7 @@ public class LogFilePath {
     public String getLogFileParentDir() {
         ArrayList<String> elements = new ArrayList<String>();
         elements.add(mPrefix);
-        elements.add(mTopic);
+        elements.add(mShortTopic);
         return StringUtils.join(elements, "/");
     }
 
@@ -135,11 +154,21 @@ public class LogFilePath {
     }
 
     private String getLogFileBasename() {
-        ArrayList<String> basenameElements = new ArrayList<String>();
-        basenameElements.add(Integer.toString(mGeneration));
-        basenameElements.add(Integer.toString(mKafkaPartition));
-        basenameElements.add(String.format("%020d", mOffset));
-        return StringUtils.join(basenameElements, "_");
+        if (this.mTimestamp == null) {
+            ArrayList<String> basenameElements = new ArrayList<String>();
+            basenameElements.add(Integer.toString(mGeneration));
+            basenameElements.add(Integer.toString(mKafkaPartition));
+            basenameElements.add(String.format("%020d", mOffset));
+
+            return StringUtils.join(basenameElements, "_");
+        } else {
+            Date fileDate = new Date(this.mTimestamp);
+            // Paths containing colons are rejected by the Hadoop/S3 code
+            // SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-DD'T'HH:mm:ss.SSS");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-DD'T'HH-mm-ss.SSS");
+
+            return formatter.format(fileDate) + "+" + this.mUuid.toString();
+        }
     }
 
     public String getLogFilePath() {
@@ -163,7 +192,8 @@ public class LogFilePath {
     }
 
     public String getTopic() {
-        return mTopic;
+        // return mTopic;
+        return mShortTopic;
     }
 
     public String[] getPartitions() {

@@ -51,17 +51,22 @@
         <maven.compiler.target>1.6</maven.compiler.target>
         <encoding>UTF-8</encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <releaseRepoUrl>http://nexus.bloomdigital.com/content/repositories/releases/</releaseRepoUrl>
+        <snapshotRepoUrl>http://nexus.bloomdigital.com/content/repositories/snapshots/</snapshotRepoUrl>
+        <!-- <deployRepoUrl>${releaseRepoUrl}</deployRepoUrl> -->
     </properties>
 
     <distributionManagement>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>adgear-snapshots-repository</id>
+            <name>AdGear's snapshots repository</name>
+            <url>${snapshotRepoUrl}</url>
         </snapshotRepository>
+        <repository>
+            <id>adgear-releases-repository</id>
+            <name>AdGear's releases repository</name>
+            <url>${releaseRepoUrl}</url>
+        </repository>
     </distributionManagement>
 
     <repositories>

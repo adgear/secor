@@ -340,6 +340,10 @@ public class SecorConfig {
         return getInt("partitioner.finalizer.delay.seconds");
     }
 
+    public String getAdgearSource() {
+        return getString("secor.adgear.source");
+    }
+
     public String getSuccessfulUploadTouchFile() {
         return getString("successful-upload-touch.file");
     }
