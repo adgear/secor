@@ -26,15 +26,16 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
 
         Double timestamp = (Double) jsonObject.get(timestampFieldname);
         String cookieId = (String) jsonObject.get("uid");
+        Integer buyerId = (Integer) jsonObject.get("buyer_id");
         Integer segmentId = (Integer) jsonObject.get("segment_id");
         Boolean segmentIsNew = (Boolean) jsonObject.get("segment_new");
 
-        if (timestamp == null || cookieId == null || segmentId == null
+        if (timestamp == null || buyerId == null || cookieId == null || segmentId == null
             || segmentIsNew == null || !segmentIsNew) {
             return null;
         }
 
-        return String.format("%s\t%d\tseg:%d\n",
-                             cookieId, Math.round(timestamp), segmentId);
+        return String.format("%s\t%d\t%d:seg:%d\n",
+                             cookieId, Math.round(timestamp), buyerId, segmentId);
     }
 }
