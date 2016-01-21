@@ -24,7 +24,7 @@
             <directory>target/classes</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>*.properties</include>
+                <include>*adgear.properties</include>
             </includes>
         </fileSet>
     </fileSets>
