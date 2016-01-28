@@ -192,8 +192,7 @@ public class LogFilePath {
     }
 
     public String getTopic() {
-        // return mTopic;
-        return mShortTopic;
+        return mTopic;
     }
 
     public String[] getPartitions() {
