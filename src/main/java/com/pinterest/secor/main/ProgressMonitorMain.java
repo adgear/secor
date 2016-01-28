@@ -44,7 +44,7 @@ public class ProgressMonitorMain {
                 progressMonitor.exportStats();
 
                 LOG.info("Done exporting; will sleep.");
-                Thread.sleep(30000);
+                Thread.sleep(30000); // FIXME: make this configurable
             }
         } catch (Throwable t) {
             LOG.error("Progress monitor failed", t);
