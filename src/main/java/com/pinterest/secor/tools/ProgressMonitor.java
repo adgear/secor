@@ -180,7 +180,15 @@ public class ProgressMonitor {
             List<Integer> partitions = mZookeeperConnector.getCommittedOffsetPartitions(topic);
             for (Integer partition : partitions) {
                 TopicPartition topicPartition = new TopicPartition(topic, partition);
-                Message committedMessage = mKafkaClient.getCommittedMessage(topicPartition);
+                Message committedMessage;
+                try {
+                    committedMessage = mKafkaClient.getCommittedMessage(topicPartition);
+                } catch (RuntimeException e) {
+                    e.printStackTrace();
+                    LOG.warn("Partition {} failed, skipping", partition);
+                    continue;
+                }
+
                 long committedOffset = - 1;
                 long committedTimestampMillis = -1;
                 if (committedMessage == null) {
