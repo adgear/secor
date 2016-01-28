@@ -40,7 +40,12 @@ public class ProgressMonitorMain {
         try {
             SecorConfig config = SecorConfig.load();
             ProgressMonitor progressMonitor = new ProgressMonitor(config);
-            progressMonitor.exportStats();
+            while (true) {
+                progressMonitor.exportStats();
+
+                LOG.info("Done exporting; will sleep.");
+                Thread.sleep(30000);
+            }
         } catch (Throwable t) {
             LOG.error("Progress monitor failed", t);
             System.exit(1);
