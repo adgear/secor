@@ -7,8 +7,15 @@ import com.pinterest.secor.io.KeyValue;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
+
 // Converts delivery JSON to Beh TSV
 public class AdgearDeliveryJsonReader implements AdgearReader {
+    private static final Logger LOG = LoggerFactory.getLogger(AdgearDeliveryJsonReader.class);
+
     private final String timestampFieldname;
 
     public AdgearDeliveryJsonReader(SecorConfig secorConfig) {
@@ -33,6 +40,12 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
         if (timestamp == null || buyerId == null || cookieId == null || segmentId == null
             || segmentIsNew == null || !segmentIsNew) {
             return null;
+        }
+
+        try {
+            UUID.fromString(cookieId);
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Skipping bad UUID: {}", cookieId);
         }
 
         return String.format("%s\t%d\t%d:seg:%d\n",
