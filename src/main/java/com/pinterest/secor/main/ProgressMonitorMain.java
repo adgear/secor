@@ -40,11 +40,13 @@ public class ProgressMonitorMain {
         try {
             SecorConfig config = SecorConfig.load();
             ProgressMonitor progressMonitor = new ProgressMonitor(config);
+            final long intervalMillis = config.getMonitoringIntervalSeconds() * 1000;
+
             while (true) {
                 progressMonitor.exportStats();
 
                 LOG.info("Done exporting; will sleep.");
-                Thread.sleep(30000); // FIXME: make this configurable
+                Thread.sleep(intervalMillis);
             }
         } catch (Throwable t) {
             LOG.error("Progress monitor failed", t);
