@@ -167,7 +167,7 @@ public class LogFilePath {
             // SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-DD'T'HH:mm:ss.SSS");
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-DD'T'HH-mm-ss.SSS");
 
-            return formatter.format(fileDate) + "+" + this.mUuid.toString();
+            return formatter.format(fileDate); // + "+" + this.mUuid.toString();
         }
     }
 
