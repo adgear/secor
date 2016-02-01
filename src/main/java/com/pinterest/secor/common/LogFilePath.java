@@ -165,7 +165,7 @@ public class LogFilePath {
             Date fileDate = new Date(this.mTimestamp);
             // Paths containing colons are rejected by the Hadoop/S3 code
             // SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-DD'T'HH:mm:ss.SSS");
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-DD'T'HH-mm-ss.SSS");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSS");
 
             return formatter.format(fileDate); // + "+" + this.mUuid.toString();
         }
