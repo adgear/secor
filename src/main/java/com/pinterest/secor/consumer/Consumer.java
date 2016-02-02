@@ -108,6 +108,9 @@ public class Consumer extends Thread {
     private void checkUploadPolicy() {
         try {
             mUploader.applyPolicy();
+        } catch(org.apache.http.NoHttpResponseException e) {
+            LOG.warn("Ignoring HTTP failure:");
+            e.printStackTrace();
         } catch (Exception e) {
             throw new RuntimeException("Failed to apply upload policy", e);
         }
