@@ -281,7 +281,7 @@ public class SecorConfig {
     }
 
     public int getMonitoringIntervalSeconds() {
-        return getInt("monitoring.interval.seconds", 5);
+        return getInt("monitoring.interval.seconds", 60);
     }
 
     public String getMessageTimestampName() {
