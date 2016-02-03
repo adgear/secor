@@ -28,12 +28,26 @@ public class AdgearGatewayJsonReader implements AdgearReader {
         String cookieId = (String) getAtPath(jsonObject, "bid_request.user.buyeruid");
         String urlDomain = (String) getAtPath(jsonObject,"bid_request.site.domain");
 
+        // Extra fields, logged if present
+        String country = (String) getAtPath(jsonObject, "bid_request.device.geo.country");
+        String region = (String) getAtPath(jsonObject, "bid_request.device.geo.region");
+
         if (timestamp == null || cookieId == null || urlDomain == null) {
             return null;
         }
 
-        return String.format("%s\t%d\turld:%s\n",
-                             cookieId, Math.round(timestamp), urlDomain);
+        StringBuffer output = new StringBuffer();
+        output
+                .append(cookieId).append('\t')
+                .append(Math.round(timestamp)).append('\t')
+                .append("urld:").append(urlDomain);
+
+        if (country != null) { output.append(",country:").append(country); }
+        if (region != null)  { output.append(",region:").append(region); }
+
+        output.append("\n");
+
+        return output.toString();
     }
 
     // 1. Horrible
