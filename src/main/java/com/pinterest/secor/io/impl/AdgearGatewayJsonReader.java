@@ -42,6 +42,8 @@ public class AdgearGatewayJsonReader implements AdgearReader {
                 .append(Math.round(timestamp)).append('\t')
                 .append("urld:").append(urlDomain);
 
+        // FIXME: Duplicated code (see sibling class)
+        // FIXME: Add validation?
         if (country != null) { output.append(",country:").append(country); }
         if (region != null)  { output.append(",region:").append(region); }
 
