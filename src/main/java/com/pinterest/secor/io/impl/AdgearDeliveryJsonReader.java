@@ -37,6 +37,10 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
         Integer segmentId = (Integer) jsonObject.get("segment_id");
         Boolean segmentIsNew = (Boolean) jsonObject.get("segment_new");
 
+        // Extra fields, logged if present
+        String country = (String) jsonObject.get("country");
+        String region = (String) jsonObject.get("region");
+
         if (timestamp == null || buyerId == null || cookieId == null || segmentId == null
             || segmentIsNew == null || !segmentIsNew) {
             return null;
@@ -48,7 +52,17 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
             LOG.warn("Skipping bad UUID: {}", cookieId);
         }
 
-        return String.format("%s\t%d\t%d:seg:%d\n",
-                             cookieId, Math.round(timestamp), buyerId, segmentId);
+        StringBuffer output = new StringBuffer();
+        output
+            .append(cookieId).append('\t')
+            .append(Math.round(timestamp)).append('\t')
+            .append("seg:").append(segmentId);
+
+        if (country != null) { output.append(",country:").append(country); }
+        if (region != null)  { output.append(",region:").append(region); }
+
+        output.append("\n");
+
+        return output.toString();
     }
 }
