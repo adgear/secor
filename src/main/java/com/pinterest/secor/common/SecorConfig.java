@@ -348,6 +348,10 @@ public class SecorConfig {
         return getString("secor.adgear.source");
     }
 
+    public boolean getSecorAdgearLogFieldsGeo() {
+        return getBoolean("secor.adgear.log.fields.geo", false);
+    }
+
     public String getSuccessfulUploadTouchFile() {
         // Bypass this.getString's checkProperty to allow this property to be unset
         return mProperties.getString("successful-upload-touch.file");
