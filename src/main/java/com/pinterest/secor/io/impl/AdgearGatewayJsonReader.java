@@ -10,9 +10,11 @@ import net.minidev.json.JSONValue;
 // Converts gateway JSON to Beh TSV
 public class AdgearGatewayJsonReader implements AdgearReader {
     private final String timestampFieldname;
+    private final boolean logGeo;
 
     public AdgearGatewayJsonReader(SecorConfig secorConfig) {
         timestampFieldname = secorConfig.getMessageTimestampName();
+        logGeo = secorConfig.getSecorAdgearLogFieldsGeo();
     }
 
     public String convert(KeyValue kv) {
@@ -29,8 +31,11 @@ public class AdgearGatewayJsonReader implements AdgearReader {
         String urlDomain = (String) getAtPath(jsonObject,"bid_request.site.domain");
 
         // Extra fields, logged if present
-        String country = (String) getAtPath(jsonObject, "bid_request.device.geo.country");
-        String region = (String) getAtPath(jsonObject, "bid_request.device.geo.region");
+        String country = null, region = null;
+        if (logGeo) {
+            country = (String) getAtPath(jsonObject, "bid_request.device.geo.country");
+            region = (String) getAtPath(jsonObject, "bid_request.device.geo.region");
+        }
 
         if (timestamp == null || cookieId == null || urlDomain == null) {
             return null;
@@ -44,11 +49,16 @@ public class AdgearGatewayJsonReader implements AdgearReader {
 
         // FIXME: Duplicated code (see sibling class)
         // FIXME: Add validation?
-        if (country != null) { output.append(",country:").append(country); }
-        if (region != null)  { output.append(",region:").append(region); }
+        if (logGeo) {
+            if (country != null) {
+                output.append(",country:").append(country);
+            }
+            if (region != null) {
+                output.append(",region:").append(region);
+            }
+        }
 
         output.append("\n");
-
         return output.toString();
     }
 

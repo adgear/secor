@@ -17,9 +17,11 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
     private static final Logger LOG = LoggerFactory.getLogger(AdgearDeliveryJsonReader.class);
 
     private final String timestampFieldname;
+    private final boolean logGeo;
 
     public AdgearDeliveryJsonReader(SecorConfig secorConfig) {
         timestampFieldname = secorConfig.getMessageTimestampName();
+        logGeo = secorConfig.getSecorAdgearLogFieldsGeo();
     }
 
     public String convert(KeyValue kv) {
@@ -38,8 +40,11 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
         Boolean segmentIsNew = (Boolean) jsonObject.get("segment_new");
 
         // Extra fields, logged if present
-        String country = (String) jsonObject.get("country");
-        String region = (String) jsonObject.get("region");
+        String country = null, region = null;
+        if (logGeo) {
+            country = (String) jsonObject.get("country");
+            region = (String) jsonObject.get("region");
+        }
 
         if (timestamp == null || buyerId == null || cookieId == null || segmentId == null
             || segmentIsNew == null || !segmentIsNew) {
@@ -60,11 +65,16 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
 
         // FIXME: Duplicated code (see sibling class)
         // FIXME: Add validation?
-        if (country != null) { output.append(",country:").append(country); }
-        if (region != null)  { output.append(",region:").append(region); }
+        if (logGeo) {
+            if (country != null) {
+                output.append(",country:").append(country);
+            }
+            if (region != null) {
+                output.append(",region:").append(region);
+            }
+        }
 
         output.append("\n");
-
         return output.toString();
     }
 }
