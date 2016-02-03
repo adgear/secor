@@ -17,9 +17,11 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
     private static final Logger LOG = LoggerFactory.getLogger(AdgearDeliveryJsonReader.class);
 
     private final String timestampFieldname;
+    private final boolean logGeo;
 
     public AdgearDeliveryJsonReader(SecorConfig secorConfig) {
         timestampFieldname = secorConfig.getMessageTimestampName();
+        logGeo = secorConfig.getSecorAdgearLogFieldsGeo();
     }
 
     public String convert(KeyValue kv) {
@@ -37,6 +39,13 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
         Integer segmentId = (Integer) jsonObject.get("segment_id");
         Boolean segmentIsNew = (Boolean) jsonObject.get("segment_new");
 
+        // Extra fields, logged if present
+        String country = null, region = null;
+        if (logGeo) {
+            country = (String) jsonObject.get("country");
+            region = (String) jsonObject.get("region");
+        }
+
         if (timestamp == null || buyerId == null || cookieId == null || segmentId == null
             || segmentIsNew == null || !segmentIsNew) {
             return null;
@@ -48,7 +57,24 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
             LOG.warn("Skipping bad UUID: {}", cookieId);
         }
 
-        return String.format("%s\t%d\t%d:seg:%d\n",
-                             cookieId, Math.round(timestamp), buyerId, segmentId);
+        StringBuffer output = new StringBuffer();
+        output
+            .append(cookieId).append('\t')
+            .append(Math.round(timestamp)).append('\t')
+            .append("seg:").append(segmentId);
+
+        // FIXME: Duplicated code (see sibling class)
+        // FIXME: Add validation?
+        if (logGeo) {
+            if (country != null) {
+                output.append(",country:").append(country);
+            }
+            if (region != null) {
+                output.append(",region:").append(region);
+            }
+        }
+
+        output.append("\n");
+        return output.toString();
     }
 }
