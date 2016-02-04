@@ -47,6 +47,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Progress monitor exports offset lags per topic partition.
@@ -128,7 +129,15 @@ public class ProgressMonitor {
     }
 
     public void exportStats() throws Exception {
-        List<Stat> stats = getStats();
+        List<Stat> stats;
+        try {
+            stats = getStats();
+        } catch (NoSuchElementException e) {
+            LOG.error("Got NoSuchElementException running getStats; ignoring:");
+            e.printStackTrace();
+            return;
+        }
+
         System.out.println(JSONArray.toJSONString(stats));
 
         // if there is a valid openTSDB port configured export to openTSDB
