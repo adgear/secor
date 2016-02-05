@@ -18,6 +18,8 @@ package com.pinterest.secor.main;
 
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.tools.ProgressMonitor;
+import com.timgroup.statsd.NonBlockingStatsDClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +45,14 @@ public class ProgressMonitorMain {
             final long intervalMillis = config.getMonitoringIntervalSeconds() * 1000;
 
             while (true) {
-                progressMonitor.exportStats();
+                NonBlockingStatsDClient client = progressMonitor.exportStats();
 
                 LOG.info("Done exporting; will sleep.");
                 Thread.sleep(intervalMillis);
+                if (client != null) {
+                    LOG.info("Destroying NonBlockingStatsDClient.");
+                    client.stop();
+                }
             }
         } catch (Throwable t) {
             LOG.error("Progress monitor failed", t);

@@ -128,14 +128,14 @@ public class ProgressMonitor {
         makeRequest(stat.toString());
     }
 
-    public void exportStats() throws Exception {
+    public NonBlockingStatsDClient exportStats() throws Exception {
         List<Stat> stats;
         try {
             stats = getStats();
         } catch (NoSuchElementException e) {
             LOG.error("Got NoSuchElementException running getStats; ignoring:");
             e.printStackTrace();
-            return;
+            return null;
         }
 
         System.out.println(JSONArray.toJSONString(stats));
@@ -149,14 +149,16 @@ public class ProgressMonitor {
 
         // if there is a valid statsD port configured export to statsD
         if (mConfig.getStatsDHostPort() != null && !mConfig.getStatsDHostPort().isEmpty()) {
-            exportToStatsD(stats);
+            return exportToStatsD(stats);
         }
+
+        return null;
     }
 
     /**
      * Helper to publish stats to statsD client
      */
-    private void exportToStatsD(List<Stat> stats) {
+    private NonBlockingStatsDClient exportToStatsD(List<Stat> stats) {
         HostAndPort hostPort = HostAndPort.fromString(mConfig.getStatsDHostPort());
 
         // group stats by kafka group
@@ -174,6 +176,8 @@ public class ProgressMonitor {
                     .toString();
             client.recordGaugeValue(aspect, Long.parseLong((String)stat.get(Stat.STAT_KEYS.VALUE.getName())));
         }
+
+        return client;
     }
 
     private List<Stat> getStats() throws Exception {
