@@ -23,7 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * LogFilePath represents path of a log file.  It contains convenience method for building and
@@ -54,7 +53,6 @@ public class LogFilePath {
     private final long mOffset;
     private final String mExtension;
     private Long mTimestamp = new Date().getTime();
-    private final UUID mUuid = UUID.randomUUID();
 
     public LogFilePath(String prefix, int generation, long lastCommittedOffset,
                        ParsedMessage message, String extension) {
@@ -167,9 +165,7 @@ public class LogFilePath {
             // SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-DD'T'HH:mm:ss.SSS");
             SimpleDateFormat formatter =
                     new SimpleDateFormat("yyyy-MM-dd-HH/yyyy-MM-dd'T'HH-mm-ss.SSS");
-            String suffix = this.mUuid.toString().substring(0, 7);
-
-            return formatter.format(fileDate) + "+" + suffix;
+            return String.format("%s+%04x", formatter.format(fileDate), this.hashCode() % 0x10000);
         }
     }
 
