@@ -55,13 +55,14 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
             UUID.fromString(cookieId);
         } catch (IllegalArgumentException e) {
             LOG.warn("Skipping bad UUID: {}", cookieId);
+            return null;
         }
 
         StringBuffer output = new StringBuffer();
         output
             .append(cookieId).append('\t')
             .append(Math.round(timestamp)).append('\t')
-            .append("seg:").append(segmentId);
+            .append(buyerId).append(":seg:").append(segmentId);
 
         // FIXME: Duplicated code (see sibling class)
         // FIXME: Add validation?
