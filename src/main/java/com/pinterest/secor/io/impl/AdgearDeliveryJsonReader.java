@@ -55,6 +55,7 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
             UUID.fromString(cookieId);
         } catch (IllegalArgumentException e) {
             LOG.warn("Skipping bad UUID: {}", cookieId);
+            return null;
         }
 
         StringBuffer output = new StringBuffer();
