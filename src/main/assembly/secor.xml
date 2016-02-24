@@ -20,13 +20,6 @@
                 <include>secor*.jar</include>
             </includes>
         </fileSet>
-        <fileSet>
-            <directory>target/classes</directory>
-            <outputDirectory></outputDirectory>
-            <includes>
-                <include>*adgear.properties</include>
-            </includes>
-        </fileSet>
     </fileSets>
     <!-- use this section if you want to package dependencies -->
     <dependencySets>
