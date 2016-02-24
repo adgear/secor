@@ -62,7 +62,7 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
         output
             .append(cookieId).append('\t')
             .append(Math.round(timestamp)).append('\t')
-            .append("seg:").append(segmentId);
+            .append(buyerId).append(":seg:").append(segmentId);
 
         // FIXME: Duplicated code (see sibling class)
         // FIXME: Add validation?
