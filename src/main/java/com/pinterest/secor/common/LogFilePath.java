@@ -170,7 +170,7 @@ public class LogFilePath {
             // Paths containing colons are rejected by the Hadoop/S3 code
             // SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-DD'T'HH:mm:ss.SSS");
             SimpleDateFormat formatter =
-                    new SimpleDateFormat("yyyy-MM-dd-HH/yyyy-MM-dd'T'HH-mm-ss.SSS");
+                    new SimpleDateFormat("yyyy-MM-dd/HH/yyyy-MM-dd'T'HH-mm-ss.SSS");
             int deduplicator = this.hashCode() % 0x10000;
             if (deduplicator < 0) deduplicator += 0x10000;
             return String.format("%s+%04x", formatter.format(fileDate), deduplicator);
