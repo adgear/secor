@@ -136,10 +136,16 @@ public class LogFilePath {
     }
 
     public String getLogFileParentDir() {
-        ArrayList<String> elements = new ArrayList<String>();
-        elements.add(mPrefix);
-        elements.add(mShortTopic);
-        return StringUtils.join(elements, "/");
+        // If secor.s3.path contains %s, then insert mShortTopic there,
+        // otherwise, just append to mPrefix.
+        if (mPrefix.contains("%s")) {
+             return String.format(mPrefix, mShortTopic);
+        } else {
+            ArrayList<String> elements = new ArrayList<String>();
+            elements.add(mPrefix);
+            elements.add(mShortTopic);
+            return StringUtils.join(elements, "/");
+        }
     }
 
     public String getLogFileDir() {
