@@ -138,6 +138,7 @@ public class LogFilePath {
     public String getLogFileParentDir() {
         // If secor.s3.path contains %s, then insert mShortTopic there,
         // otherwise, just append to mPrefix.
+        // FIXME: Violates rule "IDS06-J" of the CERT Java rules.
         if (mPrefix.contains("%s")) {
              return String.format(mPrefix, mShortTopic);
         } else {
