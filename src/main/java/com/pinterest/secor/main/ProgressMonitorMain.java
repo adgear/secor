@@ -23,6 +23,9 @@ import com.timgroup.statsd.NonBlockingStatsDClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
 /**
  * Progress monitor main.
  *
@@ -43,6 +46,10 @@ public class ProgressMonitorMain {
             SecorConfig config = SecorConfig.load();
             ProgressMonitor progressMonitor = new ProgressMonitor(config);
             final long intervalMillis = config.getMonitoringIntervalSeconds() * 1000;
+
+            if (config.getStartupTouchFile() != null) {
+                new FileOutputStream(new File(config.getStartupTouchFile())).close();
+            }
 
             while (true) {
                 NonBlockingStatsDClient client = progressMonitor.exportStats();

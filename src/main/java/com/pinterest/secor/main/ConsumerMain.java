@@ -25,6 +25,8 @@ import com.pinterest.secor.util.RateLimitUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.LinkedList;
 
 /**
@@ -55,6 +57,10 @@ public class ConsumerMain {
             OstrichAdminService ostrichService = new OstrichAdminService(config.getOstrichPort());
             ostrichService.start();
             FileUtil.configure(config);
+
+            if (config.getStartupTouchFile() != null) {
+                new FileOutputStream(new File(config.getStartupTouchFile())).close();
+            }
 
             LogFileDeleter logFileDeleter = new LogFileDeleter(config);
             logFileDeleter.deleteOldLogs();
