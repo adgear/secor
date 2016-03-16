@@ -58,8 +58,8 @@ public class ConsumerMain {
             ostrichService.start();
             FileUtil.configure(config);
 
-            if (config.getStartupTouchFile() != null) {
-                new FileOutputStream(new File(config.getStartupTouchFile())).close();
+            if (config.getConsumerStartupTouchFile() != null) {
+                new FileOutputStream(new File(config.getConsumerStartupTouchFile())).close();
             }
 
             LogFileDeleter logFileDeleter = new LogFileDeleter(config);

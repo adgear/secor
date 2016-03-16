@@ -357,9 +357,14 @@ public class SecorConfig {
         return mProperties.getString("successful-upload-touch.file");
     }
 
-    public String getStartupTouchFile() {
+    public String getConsumerStartupTouchFile() {
         // Bypass this.getString's checkProperty to allow this property to be unset
-        return mProperties.getString("startup-touch.file");
+        return mProperties.getString("consumer-startup-touch.file");
+    }
+
+    public String getMonitorStartupTouchFile() {
+        // Bypass this.getString's checkProperty to allow this property to be unset
+        return mProperties.getString("monitor-startup-touch.file");
     }
 
     public boolean getBoolean(String name, boolean defaultValue) {
