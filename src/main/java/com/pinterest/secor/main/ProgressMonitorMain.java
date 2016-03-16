@@ -47,8 +47,8 @@ public class ProgressMonitorMain {
             ProgressMonitor progressMonitor = new ProgressMonitor(config);
             final long intervalMillis = config.getMonitoringIntervalSeconds() * 1000;
 
-            if (config.getStartupTouchFile() != null) {
-                new FileOutputStream(new File(config.getStartupTouchFile())).close();
+            if (config.getMonitorStartupTouchFile() != null) {
+                new FileOutputStream(new File(config.getMonitorStartupTouchFile())).close();
             }
 
             while (true) {
