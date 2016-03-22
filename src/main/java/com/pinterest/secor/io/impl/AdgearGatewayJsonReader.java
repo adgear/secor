@@ -11,10 +11,12 @@ import net.minidev.json.JSONValue;
 public class AdgearGatewayJsonReader implements AdgearReader {
     private final String timestampFieldname;
     private final boolean logGeo;
+    private final String logGeoInclude;
 
     public AdgearGatewayJsonReader(SecorConfig secorConfig) {
         timestampFieldname = secorConfig.getMessageTimestampName();
         logGeo = secorConfig.getSecorAdgearLogFieldsGeo();
+        logGeoInclude = secorConfig.getSecorAdgearLogFieldsGeoInclude();
     }
 
     public String convert(KeyValue kv) {
@@ -33,8 +35,13 @@ public class AdgearGatewayJsonReader implements AdgearReader {
         // Extra fields, logged if present
         String country = null, region = null;
         if (logGeo) {
-            country = (String) getAtPath(jsonObject, "bid_request.device.geo.country");
-            region = (String) getAtPath(jsonObject, "bid_request.device.geo.region");
+            String c = (String) getAtPath(jsonObject, "bid_request.device.geo.country");
+
+            // Apply whitelist if set
+            if (logGeoInclude == null || c == logGeoInclude) {
+                country = c;
+                region = (String) getAtPath(jsonObject, "bid_request.device.geo.region");
+            }
         }
 
         if (timestamp == null || cookieId == null || urlDomain == null) {
