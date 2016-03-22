@@ -38,7 +38,7 @@ public class AdgearGatewayJsonReader implements AdgearReader {
             String c = (String) getAtPath(jsonObject, "bid_request.device.geo.country");
 
             // Apply whitelist if set
-            if (logGeoInclude == null || c == logGeoInclude) {
+            if (logGeoInclude == null || logGeoInclude.equals(c)) {
                 country = c;
                 region = (String) getAtPath(jsonObject, "bid_request.device.geo.region");
             }
