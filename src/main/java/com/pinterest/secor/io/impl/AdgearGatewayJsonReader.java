@@ -7,16 +7,26 @@ import com.pinterest.secor.io.KeyValue;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 // Converts gateway JSON to Beh TSV
 public class AdgearGatewayJsonReader implements AdgearReader {
     private final String timestampFieldname;
     private final boolean logGeo;
-    private final String logGeoInclude;
+    private final HashSet<String> logGeoInclude;
 
     public AdgearGatewayJsonReader(SecorConfig secorConfig) {
         timestampFieldname = secorConfig.getMessageTimestampName();
         logGeo = secorConfig.getSecorAdgearLogFieldsGeo();
-        logGeoInclude = secorConfig.getSecorAdgearLogFieldsGeoInclude();
+
+        String logFieldsGeoInclude = secorConfig.getSecorAdgearLogFieldsGeoInclude();
+        if (logFieldsGeoInclude == null) {
+            logGeoInclude = null;
+        } else {
+            // Split on literal pipes
+            logGeoInclude = new HashSet<String>(Arrays.asList(logFieldsGeoInclude.split("\\|")));
+        }
     }
 
     public String convert(KeyValue kv) {
@@ -38,7 +48,7 @@ public class AdgearGatewayJsonReader implements AdgearReader {
             String c = (String) getAtPath(jsonObject, "bid_request.device.geo.country");
 
             // Apply whitelist if set
-            if (logGeoInclude == null || logGeoInclude.equals(c)) {
+            if (logGeoInclude == null || logGeoInclude.contains(c)) {
                 country = c;
                 region = (String) getAtPath(jsonObject, "bid_request.device.geo.region");
             }
