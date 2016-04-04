@@ -353,6 +353,7 @@ public class SecorConfig {
     }
 
     public String getSecorAdgearLogFieldsGeoInclude() {
+        /* Pipe-separated list of uppercase, two-letter country codes */
         return mProperties.getString("secor.adgear.log.fields.geo.include");
     }
 
