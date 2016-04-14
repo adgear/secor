@@ -49,7 +49,7 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
         }
 
         // Drop cookie IDs we will never see again
-        if (uidIsNew && !uidIsSticky) {
+        if (uidIsNew != null && uidIsNew && (uidIsSticky == null || !uidIsSticky)) {
             return null;
         }
 
