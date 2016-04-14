@@ -38,12 +38,19 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
         Integer buyerId = (Integer) jsonObject.get("buyer_id");
         Integer segmentId = (Integer) jsonObject.get("segment_id");
         Boolean segmentIsNew = (Boolean) jsonObject.get("segment_new");
+        Boolean uidIsNew = (Boolean) jsonObject.get("uid_new");
+        Boolean uidIsSticky = (Boolean) jsonObject.get("uid_sticky");
 
         // Extra fields, logged if present
         String country = null, region = null;
         if (logGeo) {
             country = (String) jsonObject.get("country");
             region = (String) jsonObject.get("region");
+        }
+
+        // Drop cookie IDs we will never see again
+        if (uidIsNew && !uidIsSticky) {
+            return null;
         }
 
         if (timestamp == null || buyerId == null || cookieId == null || segmentId == null
