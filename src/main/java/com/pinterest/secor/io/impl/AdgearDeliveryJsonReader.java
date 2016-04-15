@@ -38,7 +38,7 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
         Integer buyerId = (Integer) jsonObject.get("buyer_id");
         Integer segmentId = (Integer) jsonObject.get("segment_id");
         Boolean segmentIsNew = (Boolean) jsonObject.get("segment_new");
-        Boolean uidIsNew = (Boolean) jsonObject.get("uid_new");
+        // Boolean uidIsNew = (Boolean) jsonObject.get("uid_new");
         Boolean uidIsSticky = (Boolean) jsonObject.get("uid_sticky");
 
         // Extra fields, logged if present
@@ -49,7 +49,7 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
         }
 
         // Drop cookie IDs we will never see again
-        if (uidIsNew != null && uidIsNew && (uidIsSticky == null || !uidIsSticky)) {
+        if (uidIsSticky == null || !uidIsSticky) {
             return null;
         }
 
