@@ -42,10 +42,11 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
         Boolean uidIsSticky = (Boolean) jsonObject.get("uid_sticky");
 
         // Extra fields, logged if present
-        String country = null, region = null;
+        String country = null, region = null, city = null;
         if (logGeo) {
             country = (String) jsonObject.get("country");
             region = (String) jsonObject.get("region");
+            city = (String) jsonObject.get("..."); // FIXME use proper field
         }
 
         // Drop cookie IDs we will never see again
@@ -79,6 +80,9 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
             }
             if (region != null) {
                 output.append(",region:").append(region);
+            }
+            if (city != null) {
+                output.append(",city:").append(city);
             }
         }
 
