@@ -43,7 +43,7 @@ public class AdgearGatewayJsonReader implements AdgearReader {
         String urlDomain = (String) getAtPath(jsonObject,"bid_request.site.domain");
 
         // Extra fields, logged if present
-        String country = null, region = null;
+        String country = null, region = null, city = null;
         if (logGeo) {
             String c = (String) getAtPath(jsonObject, "bid_request.device.geo.country");
 
@@ -51,6 +51,7 @@ public class AdgearGatewayJsonReader implements AdgearReader {
             if (logGeoInclude == null || logGeoInclude.contains(c)) {
                 country = c;
                 region = (String) getAtPath(jsonObject, "bid_request.device.geo.region");
+                city = (String) getAtPath(jsonObject, "bid_request.device.geo.ext.normalized_city");
             }
         }
 
@@ -72,6 +73,9 @@ public class AdgearGatewayJsonReader implements AdgearReader {
             }
             if (region != null) {
                 output.append(",region:").append(region);
+            }
+            if (city != null) {
+                output.append(",city:").append(city);
             }
         }
 
