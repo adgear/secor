@@ -41,6 +41,9 @@ public class AdgearGatewayJsonReader implements AdgearReader {
         Double timestamp = (Double) jsonObject.get(timestampFieldname);
         String cookieId = (String) getAtPath(jsonObject, "bid_request.user.buyeruid");
         String urlDomain = (String) getAtPath(jsonObject,"bid_request.site.domain");
+        Integer browser_id = (Integer) getAtPath(jsonObject, "bid_request.device.ext.browser_id");
+        Integer os_id = (Integer) getAtPath(jsonObject,
+                                            "bid_request.device.ext.operating_system_id");
 
         // Extra fields, logged if present
         String country = null, region = null, city = null;
@@ -64,6 +67,14 @@ public class AdgearGatewayJsonReader implements AdgearReader {
                 .append(cookieId).append('\t')
                 .append(Math.round(timestamp)).append('\t')
                 .append("urld:").append(urlDomain);
+
+        if (browser_id != null) {
+            output.append(",browser_id:").append(browser_id);
+        }
+
+        if (os_id != null) {
+            output.append(",os_id:").append(os_id);
+        }
 
         // FIXME: Duplicated code (see sibling class)
         // FIXME: Add validation?

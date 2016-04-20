@@ -36,6 +36,8 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
         Double timestamp = (Double) jsonObject.get(timestampFieldname);
         String cookieId = (String) jsonObject.get("uid");
         Integer buyerId = (Integer) jsonObject.get("buyer_id");
+        Integer browser_id = (Integer) jsonObject.get("browser_id");
+        Integer os_id = (Integer) jsonObject.get("operating_system_id");
         Integer segmentId = (Integer) jsonObject.get("segment_id");
         Boolean segmentIsNew = (Boolean) jsonObject.get("segment_new");
         // Boolean uidIsNew = (Boolean) jsonObject.get("uid_new");
@@ -71,6 +73,14 @@ public class AdgearDeliveryJsonReader implements AdgearReader {
             .append(cookieId).append('\t')
             .append(Math.round(timestamp)).append('\t')
             .append(buyerId).append(":seg:").append(segmentId);
+
+        if (browser_id != null) {
+            output.append(",browser_id:").append(browser_id);
+        }
+
+        if (os_id != null) {
+            output.append(",os_id:").append(os_id);
+        }
 
         // FIXME: Duplicated code (see sibling class)
         // FIXME: Add validation?
