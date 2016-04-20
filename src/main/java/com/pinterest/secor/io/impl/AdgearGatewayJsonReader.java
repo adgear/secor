@@ -2,6 +2,7 @@ package com.pinterest.secor.io.impl;
 
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.io.AdgearReader;
+import com.pinterest.secor.io.AdgearReaderUtils;
 import com.pinterest.secor.io.KeyValue;
 
 import net.minidev.json.JSONObject;
@@ -68,26 +69,15 @@ public class AdgearGatewayJsonReader implements AdgearReader {
                 .append(Math.round(timestamp)).append('\t')
                 .append("urld:").append(urlDomain);
 
-        if (browser_id != null) {
-            output.append(",browser_id:").append(browser_id);
-        }
-
-        if (os_id != null) {
-            output.append(",os_id:").append(os_id);
-        }
+        AdgearReaderUtils.appendIfSet(output, "browser_id", browser_id);
+        AdgearReaderUtils.appendIfSet(output, "os_id", os_id);
 
         // FIXME: Duplicated code (see sibling class)
         // FIXME: Add validation?
         if (logGeo) {
-            if (country != null) {
-                output.append(",country:").append(country);
-            }
-            if (region != null) {
-                output.append(",region:").append(region);
-            }
-            if (city != null) {
-                output.append(",city:").append(city);
-            }
+            AdgearReaderUtils.appendIfSet(output, "country", country);
+            AdgearReaderUtils.appendIfSet(output, "region", region);
+            AdgearReaderUtils.appendIfSet(output, "city", city);
         }
 
         output.append("\n");
