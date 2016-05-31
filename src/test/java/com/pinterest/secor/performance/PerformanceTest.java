@@ -48,6 +48,7 @@ import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import kafka.utils.ZKStringSerializer$;
+import kafka.utils.ZkUtils;
 
 /**
  * A performance test for secor
@@ -237,21 +238,20 @@ public class PerformanceTest {
     private static void createTopics(List<String> topics, int partitions,
             String zkConfig) throws InterruptedException {
 
-        ZkClient zkClient = createZkClient(zkConfig);
+        ZkUtils zkUtils = createZkClient(zkConfig);
 
         try {
             Properties props = new Properties();
             int replicationFactor = 1;
             for (String topic : topics) {
-                AdminUtils.createTopic(zkClient, topic, partitions,
-                        replicationFactor, props);
+                AdminUtils.createTopic(zkUtils, topic, partitions,
+                                       replicationFactor, props);
             }
         } catch (TopicExistsException e) {
             System.out.println(e.getMessage());
         } finally {
-            zkClient.close();
+            zkUtils.close();
         }
-
     }
 
     /**
@@ -260,13 +260,15 @@ public class PerformanceTest {
      * @param zkConfig
      * @return
      */
-    private static ZkClient createZkClient(String zkConfig) {
+    private static ZkUtils createZkClient(String zkConfig) {
         // Create a ZooKeeper client
         int sessionTimeoutMs = 10000;
         int connectionTimeoutMs = 10000;
         ZkClient zkClient = new ZkClient(zkConfig, sessionTimeoutMs,
                 connectionTimeoutMs, ZKStringSerializer$.MODULE$);
-        return zkClient;
+        ZkUtils zkUtils = ZkUtils.apply(zkConfig, sessionTimeoutMs, connectionTimeoutMs,
+                                        false /* Wrong. */);
+        return zkUtils;
     }
 
 }
