@@ -51,8 +51,8 @@
         <maven.compiler.target>1.6</maven.compiler.target>
         <encoding>UTF-8</encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <releaseRepoUrl>http://nexus.bloomdigital.com/content/repositories/releases/</releaseRepoUrl>
-        <snapshotRepoUrl>http://nexus.bloomdigital.com/content/repositories/snapshots/</snapshotRepoUrl>
+        <releaseRepoUrl>${adgearReleasePublishUrl}</releaseRepoUrl>
+        <snapshotRepoUrl>${adgearSnapshotPublishUrl}</snapshotRepoUrl>
         <!-- <deployRepoUrl>${releaseRepoUrl}</deployRepoUrl> -->
     </properties>
 
