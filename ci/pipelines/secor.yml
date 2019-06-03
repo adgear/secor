@@ -1,0 +1,98 @@
+# instance:       concourse.int.adgear.com
+# pipeline_name:  secor
+# team:           data
+---
+resource_types:
+  - name: git-tags-resource
+    type: docker-image
+    source:
+      repository: adgear/git-tags-resource
+      tag: 1.1.2
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: teliaoss/github-pr-resource
+  - name: commit-status
+    type: docker-image
+    source:
+      repository: dpb587/github-status-resource
+      tag: master
+
+resources:
+  - name: common-tasks-repo
+    type: git
+    source:
+      uri: git@github.com:adgear/common-tasks.git
+      private_key: ((adgear-concourse.ssh_private_key))
+  - name: secor-pr
+    type: pull-request
+    source:
+      repository: adgear/secor
+      access_token: ((adgear-concourse.access_token))
+  - name: secor-tags
+    type: git-tags-resource
+    source:
+      private_key: ((adgear-concourse.ssh_private_key))
+      repository_name: adgear/secor
+      uri: git@github.com:adgear/secor.git
+      tag_filter: "*.*.*"
+  - name: secor-commit-status
+    type: commit-status
+    source:
+      repository:   adgear/secor
+      access_token: ((adgear-concourse.access_token))
+      context: concourse/ci
+
+jobs:
+  - name: build-pr
+    plan:
+      - aggregate:
+        - get: common-tasks-repo
+        - get: secor-pr
+          trigger: true
+          version: every
+      - put: secor-pr
+        params:
+          path:   secor-pr
+          status: pending
+      - task: mvn-build
+        file: common-tasks-repo/mvn-build/latest/mvn-build.yml
+        input_mapping:
+          source: secor-pr
+        params: { EXPORT_VOLUMES: false }
+        on_success:
+          put: secor-pr
+          params:
+            path:   secor-pr
+            status: success
+        on_failure:
+          put: secor-pr
+          params:
+            path:   secor-pr
+            status: failure
+
+  - name: build-tags
+    plan:
+      - aggregate:
+        - get: common-tasks-repo
+        - get: secor-tags
+          trigger: true
+          version: every
+      - do:
+        - task: mvn-build
+          file: common-tasks-repo/mvn-build/latest/mvn-build.yml
+          input_mapping:
+            source: secor-tags
+          params:
+            IS_RELEASE: true
+            EXPORT_VOLUMES: false
+        on_success:
+          put: secor-commit-status
+          params:
+            state:  success
+            commit: secor-tags
+        on_failure:
+          put: secor-commit-status
+          params:
+            state:  failure
+            commit: secor-tags
